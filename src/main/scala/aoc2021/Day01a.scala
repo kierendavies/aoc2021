@@ -1,7 +1,5 @@
 package aoc2021
 
-import aoc2021.{FileInput, Input}
-
 import scala.io.StdIn
 
 object Day01a extends App with FileInput("day01.txt") {
