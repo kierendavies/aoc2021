@@ -1,11 +1,10 @@
 package aoc2021
 
-import scala.io.{Source, StdIn}
+import scala.io.Source
+import cats.effect.{IO, Resource}
 
-trait Input {
-  def inputLines(): Iterator[String] = Iterator.continually(Option(StdIn.readLine())).takeWhile(_.isDefined).flatten
-}
-
-trait FileInput(file: String) {
-  def inputLines(): Iterator[String] = Source.fromResource(file).getLines()
-}
+object Input:
+  def readInputLines(resourceFileName: String): IO[List[String]] =
+    Resource.fromAutoCloseable(IO(Source.fromResource(resourceFileName))).use { inputFile =>
+      IO(inputFile.getLines.toList)
+    }

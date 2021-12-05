@@ -1,31 +1,39 @@
 package aoc2021
 
-object Day02a extends App with FileInput("day02.txt") {
+import aoc2021.Input.readInputLines
+import cats._
+import cats.effect._
+import cats.implicits._
 
-  sealed trait Command
-  case class Forward(dist: Int) extends Command
-  case class Down(dist: Int) extends Command
-  case class Up(dist: Int) extends Command
+object Day02a extends IOApp.Simple:
+
+  enum Command:
+    case Forward(dist: Int)
+    case Down(dist: Int)
+    case Up(dist: Int)
 
   case class Position(x: Int, y: Int)
 
-  val commands: Iterator[Command] = inputLines().map { line =>
-    line.split(' ') match {
-      case Array("forward", dist) => Forward(dist.toInt)
-      case Array("down", dist) => Down(dist.toInt)
-      case Array("up", dist) => Up(dist.toInt)
-      case _ => throw new Exception("invalid instruction")
+  def solve(inputLines: List[String]): Int =
+    val commands = inputLines.map {
+      case s"forward $dist" => Command.Forward(dist.toInt)
+      case s"down $dist"    => Command.Down(dist.toInt)
+      case s"up $dist"      => Command.Up(dist.toInt)
     }
-  }
 
-  val position = commands.foldLeft(Position(0, 0)) { case (p, cmd) =>
-    cmd match {
-      case Forward(dist) => p.copy(x = p.x + dist)
-      case Down(dist) => p.copy(y = p.y + dist)
-      case Up(dist) => p.copy(y = p.y - dist)
+    val finalPosition = commands.foldLeft(Position(0, 0)) { case (p, cmd) =>
+      cmd match {
+        case Command.Forward(dist) => p.copy(x = p.x + dist)
+        case Command.Down(dist)    => p.copy(y = p.y + dist)
+        case Command.Up(dist)      => p.copy(y = p.y - dist)
+      }
     }
-  }
 
-  println(position.x * position.y)
+    finalPosition.x * finalPosition.y
 
-}
+  def run =
+    for {
+      inputLines <- readInputLines("day02.txt")
+      solution = solve(inputLines)
+      _ <- IO.println(solution)
+    } yield ()

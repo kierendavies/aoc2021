@@ -1,15 +1,26 @@
 package aoc2021
 
-import scala.io.StdIn
+import aoc2021.Input.readInputLines
+import cats._
+import cats.effect._
+import cats.implicits._
 
-object Day01b extends App with FileInput("day01.txt") {
-  val depths = inputLines().map(_.toInt)
-  val smoothedDepths = depths.sliding(3).map(_.sum)
-  val increaseCount = smoothedDepths.sliding(2).count { window =>
-    window match {
-      case Seq(a, b) => a < b
-      case _ => false
+object Day01b extends IOApp.Simple:
+
+  def solve(inputLines: List[String]): Int =
+    val depths = inputLines.map(_.toInt)
+    val smoothedDepths = depths.sliding(3).map(_.sum)
+    val increaseCount = smoothedDepths.sliding(2).count { window =>
+      window match {
+        case Seq(a, b) => a < b
+        case _         => false
+      }
     }
-  }
-  println(increaseCount)
-}
+    increaseCount
+
+  def run =
+    for {
+      inputLines <- readInputLines("day01.txt")
+      solution = solve(inputLines)
+      _ <- IO.println(solution)
+    } yield ()
